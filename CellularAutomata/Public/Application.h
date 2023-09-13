@@ -30,6 +30,7 @@ public:
 
 	/* ---- Vulkan Wrappers ---- */
 	static VkResult VkCreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
+	static void VkDestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 
 public:
 	Application() {
@@ -43,10 +44,11 @@ private:
 	/* ---- Init ---- */
 	void InitWindow();
 	void InitVulkan();
-	void InitDebug();
 	void CreateInstance();
 	bool CheckValidationLayerSupport();
 	std::vector<const char*> GetRequiredExtensions();
+	void InitDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+	void InitDebug();
 
 	GLFWwindow* m_window;
 	// Vulkan Objects
