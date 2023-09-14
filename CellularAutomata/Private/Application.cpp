@@ -107,6 +107,34 @@ void Application::InitDebug() {
 		throw;
 	}
 }
+void Application::SelectPhysicalDevice() {
+	uint32_t deviceCount;
+	vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
+	if (deviceCount == 0) {
+		std::cout << "No GPUs supporting Vulkan found.";
+		throw;
+	}
+	std::vector<VkPhysicalDevice> devices(deviceCount);
+	vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
+	// Prefer discrete GPU with highest score
+	uint32_t maxScore = 0, bool discreteFound = false;
+	for (const auto& device : devices) {
+		VkPhysicalDeviceProperties deviceProperties;
+		vkGetPhysicalDeviceProperties(device, &deviceProperties);
+		VkPhysicalDeviceFeatures deviceFeatures;
+		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+		bool discrete = deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+		if (!discreteFound || discrete) {
+			uint32_t score = deviceProperties.limits.maxImageDimension2D;
+			if (score > maxScore) {
+				m_physicalDevice = device;
+				score = maxScore;
+				discreteFound = discrete;
+			}
+		}
+	}
+}
+
 
 /* ---- Application Loop ---- */
 void Application::Run() {

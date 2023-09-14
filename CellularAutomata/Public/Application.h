@@ -49,9 +49,11 @@ private:
 	std::vector<const char*> GetRequiredExtensions();
 	void InitDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 	void InitDebug();
+	void SelectPhysicalDevice();
 
 	GLFWwindow* m_window;
 	// Vulkan Objects
 	VkInstance m_instance;
 	VkDebugUtilsMessengerEXT m_debugMessenger;
+	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 };
