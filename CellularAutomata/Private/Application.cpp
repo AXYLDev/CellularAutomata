@@ -18,6 +18,7 @@ void Application::VkDestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUt
 }
 
 /* ---- Init ---- */
+// GLFW init
 void Application::InitWindow() {
 	glfwInit();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -26,6 +27,7 @@ void Application::InitWindow() {
 
 }
 
+// Instance init
 void Application::InitVulkan() {
 	CreateInstance();
 	InitDebug();
@@ -91,6 +93,8 @@ std::vector<const char*> Application::GetRequiredExtensions() {
 	}
 	return extensions;
 }
+
+// Debug init
 void Application::InitDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo) {
 	createInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
 	createInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
@@ -107,6 +111,8 @@ void Application::InitDebug() {
 		throw;
 	}
 }
+
+// Device selection/creation
 void Application::SelectPhysicalDevice() {
 	uint32_t deviceCount;
 	vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
@@ -126,19 +132,7 @@ void Application::SelectPhysicalDevice() {
 		// Check support
 		{
 			// Queue family support
-			uint32_t queueFamilyCount = 0;
-			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
-			std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-			bool support = false;
-			for (const auto& queueFamily : queueFamilies) {
-				if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
-					support = true;
-				}
-			}
-			if (!support) continue;
+			if (!FindQueueFamilies(device).FoundAll()) continue;
 		}
 
 		// Find score
@@ -152,6 +146,31 @@ void Application::SelectPhysicalDevice() {
 			}
 		}
 	}
+}
+Application::QueueFamilyIndices Application::FindQueueFamilies(VkPhysicalDevice device) {
+	uint32_t queueFamilyCount = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+	
+	QueueFamilyIndices indices;
+	for (uint32_t i = 0; i < queueFamilies.size(); i++) {
+		if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
+			indices.graphics = i;
+	}
+	return indices;
+}
+void Application::InitLogicalDevice() {
+	QueueFamilyIndices indices = FindQueueFamilies(m_physicalDevice);
+
+	VkDeviceQueueCreateInfo queueCreateInfo{};
+	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	queueCreateInfo.queueFamilyIndex = indices.graphics;
+	queueCreateInfo.queueCount = 1;
+	float queuePriority = 1.0f;
+	queueCreateInfo.pQueuePriorities = &queuePriority;
+
+	// TODO
 }
 
 

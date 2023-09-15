@@ -42,18 +42,31 @@ public:
 
 private:
 	/* ---- Init ---- */
+	// GLFW init
 	void InitWindow();
+	// Instance init
 	void InitVulkan();
 	void CreateInstance();
 	bool CheckValidationLayerSupport();
 	std::vector<const char*> GetRequiredExtensions();
+	// Debug init
 	void InitDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 	void InitDebug();
+	// Device selection/creation
 	void SelectPhysicalDevice();
+	struct QueueFamilyIndices {
+		uint32_t graphics = UINT32_MAX;
+		bool FoundAll() {
+			return graphics != UINT32_MAX;
+		}
+	};
+	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+	void InitLogicalDevice();
 
 	GLFWwindow* m_window;
 	// Vulkan Objects
 	VkInstance m_instance;
 	VkDebugUtilsMessengerEXT m_debugMessenger;
 	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
+	VkDevice m_device;
 };
