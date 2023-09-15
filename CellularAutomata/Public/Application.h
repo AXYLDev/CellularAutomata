@@ -69,4 +69,5 @@ private:
 	VkDebugUtilsMessengerEXT m_debugMessenger;
 	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 	VkDevice m_device;
+	VkQueue m_graphicsQueue;
 };

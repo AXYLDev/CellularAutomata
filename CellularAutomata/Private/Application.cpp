@@ -163,14 +163,35 @@ Application::QueueFamilyIndices Application::FindQueueFamilies(VkPhysicalDevice 
 void Application::InitLogicalDevice() {
 	QueueFamilyIndices indices = FindQueueFamilies(m_physicalDevice);
 
-	VkDeviceQueueCreateInfo queueCreateInfo{};
+	VkDeviceQueueCreateInfo queueCreateInfo = {};
 	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 	queueCreateInfo.queueFamilyIndex = indices.graphics;
 	queueCreateInfo.queueCount = 1;
 	float queuePriority = 1.0f;
 	queueCreateInfo.pQueuePriorities = &queuePriority;
 
-	// TODO
+	// Required features
+	VkPhysicalDeviceFeatures deviceFeatures = {};
+
+	VkDeviceCreateInfo deviceCreateInfo = {};
+	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
+	deviceCreateInfo.queueCreateInfoCount = 1;
+	deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+	deviceCreateInfo.enabledExtensionCount = 0;
+	if (s_EnableValidationLayers) {
+		deviceCreateInfo.enabledLayerCount = _countof(s_ValidationLayers);
+		deviceCreateInfo.ppEnabledLayerNames = s_ValidationLayers;
+	}
+	else deviceCreateInfo.enabledLayerCount = 0;
+
+	if (vkCreateDevice(m_physicalDevice, &deviceCreateInfo, nullptr, &m_device) != VK_SUCCESS) {
+		std::cout << "Failed to create logical device.";
+		throw;
+	}
+
+	// Get queue
+	vkGetDeviceQueue(m_device, indices.graphics, 0, &m_graphicsQueue);
 }
 
 
@@ -183,6 +204,7 @@ void Application::Run() {
 
 /* ---- Cleanup ---- */
 Application::~Application() {
+	vkDestroyDevice(m_device, nullptr);
 	if (s_EnableValidationLayers) {
 		VkDestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
 	}
