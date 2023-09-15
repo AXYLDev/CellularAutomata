@@ -31,6 +31,9 @@ void Application::InitWindow() {
 void Application::InitVulkan() {
 	CreateInstance();
 	InitDebug();
+	CreateSurface();
+	SelectPhysicalDevice();
+	InitLogicalDevice();
 }
 void Application::CreateInstance() {
 	VkApplicationInfo appInfo = {};
@@ -92,6 +95,14 @@ std::vector<const char*> Application::GetRequiredExtensions() {
 		extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 	}
 	return extensions;
+}
+
+// Window surface init
+void Application::CreateSurface() {
+	if (glfwCreateWindowSurface(m_instance, m_window, nullptr, &m_surface) != VK_SUCCESS) {
+		std::cout << "Failed to create window surface";
+		throw;
+	}
 }
 
 // Debug init
@@ -157,26 +168,34 @@ Application::QueueFamilyIndices Application::FindQueueFamilies(VkPhysicalDevice 
 	for (uint32_t i = 0; i < queueFamilies.size(); i++) {
 		if (queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			indices.graphics = i;
+		VkBool32 presentSupport = VK_FALSE;
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_surface, &presentSupport);
+		if (presentSupport)
+			indices.present = i;
 	}
 	return indices;
 }
 void Application::InitLogicalDevice() {
 	QueueFamilyIndices indices = FindQueueFamilies(m_physicalDevice);
 
-	VkDeviceQueueCreateInfo queueCreateInfo = {};
-	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	queueCreateInfo.queueFamilyIndex = indices.graphics;
-	queueCreateInfo.queueCount = 1;
-	float queuePriority = 1.0f;
-	queueCreateInfo.pQueuePriorities = &queuePriority;
-
+	// Request required queue handles
+	uint32_t queueFamilies[] = {indices.graphics, indices.present};
+	VkDeviceQueueCreateInfo queueCreateInfos[_countof(queueFamilies)] = {};
+	for (uint32_t i = 0; i < _countof(queueFamilies); i++) {
+		VkDeviceQueueCreateInfo& queueCreateInfo = queueCreateInfos[i];
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = queueFamilies[i];
+		queueCreateInfo.queueCount = 1;
+		float queuePriority = 1.0f;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+	}
 	// Required features
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 
 	VkDeviceCreateInfo deviceCreateInfo = {};
 	deviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	deviceCreateInfo.pQueueCreateInfos = &queueCreateInfo;
-	deviceCreateInfo.queueCreateInfoCount = 1;
+	deviceCreateInfo.pQueueCreateInfos = queueCreateInfos;
+	deviceCreateInfo.queueCreateInfoCount = _countof(queueCreateInfos);
 	deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 	deviceCreateInfo.enabledExtensionCount = 0;
 	if (s_EnableValidationLayers) {
@@ -192,6 +211,7 @@ void Application::InitLogicalDevice() {
 
 	// Get queue
 	vkGetDeviceQueue(m_device, indices.graphics, 0, &m_graphicsQueue);
+	vkGetDeviceQueue(m_device, indices.present, 0, &m_presentQueue);
 }
 
 
@@ -208,6 +228,7 @@ Application::~Application() {
 	if (s_EnableValidationLayers) {
 		VkDestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);
 	}
+	vkDestroySurfaceKHR(m_instance, m_surface, nullptr);
 	vkDestroyInstance(m_instance, nullptr);
 	glfwDestroyWindow(m_window);
 	glfwTerminate();

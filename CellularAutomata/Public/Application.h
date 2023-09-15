@@ -49,6 +49,8 @@ private:
 	void CreateInstance();
 	bool CheckValidationLayerSupport();
 	std::vector<const char*> GetRequiredExtensions();
+	// Window surface init
+	void CreateSurface();
 	// Debug init
 	void InitDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 	void InitDebug();
@@ -56,8 +58,9 @@ private:
 	void SelectPhysicalDevice();
 	struct QueueFamilyIndices {
 		uint32_t graphics = UINT32_MAX;
+		uint32_t present = UINT32_MAX;
 		bool FoundAll() {
-			return graphics != UINT32_MAX;
+			return graphics != UINT32_MAX && present != UINT32_MAX;
 		}
 	};
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
@@ -67,7 +70,9 @@ private:
 	// Vulkan Objects
 	VkInstance m_instance;
 	VkDebugUtilsMessengerEXT m_debugMessenger;
+	VkSurfaceKHR m_surface;
 	VkPhysicalDevice m_physicalDevice = VK_NULL_HANDLE;
 	VkDevice m_device;
 	VkQueue m_graphicsQueue;
+	VkQueue m_presentQueue;
 };
