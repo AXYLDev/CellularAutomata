@@ -123,6 +123,25 @@ void Application::SelectPhysicalDevice() {
 		vkGetPhysicalDeviceProperties(device, &deviceProperties);
 		VkPhysicalDeviceFeatures deviceFeatures;
 		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+		// Check support
+		{
+			// Queue family support
+			uint32_t queueFamilyCount = 0;
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+			std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+			bool support = false;
+			for (const auto& queueFamily : queueFamilies) {
+				if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+					support = true;
+				}
+			}
+			if (!support) continue;
+		}
+
+		// Find score
 		bool discrete = deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
 		if (!discreteFound || discrete) {
 			uint32_t score = deviceProperties.limits.maxImageDimension2D;
