@@ -19,6 +19,9 @@ public:
 	static constexpr const char* s_ValidationLayers[] = {
 		"VK_LAYER_KHRONOS_validation"
 	};
+	static constexpr const char* s_Extensions[] = {
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME
+	};
 
 	static VKAPI_ATTR VkBool32 VKAPI_CALL s_DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 		VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -65,6 +68,13 @@ private:
 	};
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 	void InitLogicalDevice();
+	struct SwapChainSupportDetails {
+		VkSurfaceCapabilitiesKHR capabilities;
+		std::vector<VkSurfaceFormatKHR> formats;
+		std::vector<VkPresentModeKHR> presentModes;
+	};
+	SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
+	VkSurfaceFormatKHR SelectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 
 	GLFWwindow* m_window;
 	// Vulkan Objects

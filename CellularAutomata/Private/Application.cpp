@@ -1,4 +1,5 @@
 #include "Application.h"
+#include <set>
 
 /* ---- Vulkan Wrappers ---- */
 VkResult Application::VkCreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger) {
@@ -144,6 +145,22 @@ void Application::SelectPhysicalDevice() {
 		{
 			// Queue family support
 			if (!FindQueueFamilies(device).FoundAll()) continue;
+			
+			// Extension support
+			uint32_t extCount;
+			vkEnumerateDeviceExtensionProperties(device, nullptr, &extCount, nullptr);
+			std::vector<VkExtensionProperties> availableExtensions(extCount);
+			vkEnumerateDeviceExtensionProperties(device, nullptr, &extCount, availableExtensions.data());
+			std::set<std::string> requiredExtensions(s_Extensions, s_Extensions + _countof(s_Extensions));
+			for (const auto& ext : availableExtensions) {
+				requiredExtensions.erase(ext.extensionName);
+			}
+			// Check required extension not present
+			if (!requiredExtensions.empty()) continue;
+			
+			// Check swap chain support
+			SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
+			if (swapChainSupport.formats.empty() || swapChainSupport.presentModes.empty()) continue;
 		}
 
 		// Find score
@@ -197,7 +214,8 @@ void Application::InitLogicalDevice() {
 	deviceCreateInfo.pQueueCreateInfos = queueCreateInfos;
 	deviceCreateInfo.queueCreateInfoCount = _countof(queueCreateInfos);
 	deviceCreateInfo.pEnabledFeatures = &deviceFeatures;
-	deviceCreateInfo.enabledExtensionCount = 0;
+	deviceCreateInfo.ppEnabledExtensionNames = s_Extensions;
+	deviceCreateInfo.enabledExtensionCount = _countof(s_Extensions);
 	if (s_EnableValidationLayers) {
 		deviceCreateInfo.enabledLayerCount = _countof(s_ValidationLayers);
 		deviceCreateInfo.ppEnabledLayerNames = s_ValidationLayers;
@@ -212,6 +230,34 @@ void Application::InitLogicalDevice() {
 	// Get queue
 	vkGetDeviceQueue(m_device, indices.graphics, 0, &m_graphicsQueue);
 	vkGetDeviceQueue(m_device, indices.present, 0, &m_presentQueue);
+}
+Application::SwapChainSupportDetails Application::QuerySwapChainSupport(VkPhysicalDevice device) {
+	SwapChainSupportDetails details;
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.capabilities);
+
+	uint32_t formatCount;
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, nullptr);
+	if (formatCount != 0) {
+		details.formats.resize(formatCount);
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, details.formats.data());
+	}
+
+	uint32_t presentModeCount;
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, nullptr);
+	if (presentModeCount != 0) {
+		details.presentModes.resize(presentModeCount);
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, details.presentModes.data());
+	}
+
+	return details;
+}
+VkSurfaceFormatKHR SelectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats) {
+	for (const auto& availableFormat : availableFormats) {
+		if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB && availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR) {
+			return availableFormat;
+		}
+	}
+	return availableFormats[0];
 }
 
 
