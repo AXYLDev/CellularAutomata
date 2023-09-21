@@ -135,9 +135,12 @@
   <ItemGroup>
     <ClCompile Include="Private\Application.cpp" />
     <ClCompile Include="Private\main.cpp" />
+    <ClCompile Include="Private\SwapChain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Public\Application.h" />
+    <ClInclude Include="Public\pch.h" />
+    <ClInclude Include="Public\SwapChain.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\Simulate.hlsl" />

@@ -1,9 +1,5 @@
 #pragma once
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#include <iostream>
-#include <vector>
+#include "SwapChain.h"
 
 class Application {
 public:
@@ -34,6 +30,14 @@ public:
 	/* ---- Vulkan Wrappers ---- */
 	static VkResult VkCreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
 	static void VkDestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
+	
+	struct QueueFamilyIndices {
+		uint32_t graphics = UINT32_MAX;
+		uint32_t present = UINT32_MAX;
+		bool FoundAll() {
+			return graphics != UINT32_MAX && present != UINT32_MAX;
+		}
+	};
 
 public:
 	Application() {
@@ -42,6 +46,13 @@ public:
 	}
 	~Application();
 	void Run();
+
+	VkPhysicalDevice GetPhysicalDevice() { return m_physicalDevice; }
+	VkDevice GetDevice() { return m_device; }
+	GLFWwindow* GetWindow() { return m_window; }
+	VkSurfaceKHR GetSurface() { return m_surface; }
+	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+
 
 private:
 	/* ---- Init ---- */
@@ -59,22 +70,7 @@ private:
 	void InitDebug();
 	// Device selection/creation
 	void SelectPhysicalDevice();
-	struct QueueFamilyIndices {
-		uint32_t graphics = UINT32_MAX;
-		uint32_t present = UINT32_MAX;
-		bool FoundAll() {
-			return graphics != UINT32_MAX && present != UINT32_MAX;
-		}
-	};
-	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 	void InitLogicalDevice();
-	struct SwapChainSupportDetails {
-		VkSurfaceCapabilitiesKHR capabilities;
-		std::vector<VkSurfaceFormatKHR> formats;
-		std::vector<VkPresentModeKHR> presentModes;
-	};
-	SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
-	VkSurfaceFormatKHR SelectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 
 	GLFWwindow* m_window;
 	// Vulkan Objects

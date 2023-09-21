@@ -24,9 +24,18 @@
     <ClCompile Include="Private\Application.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="Private\SwapChain.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Public\Application.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\SwapChain.h">
+      <Filter>Public</Filter>
+    </ClInclude>
+    <ClInclude Include="Public\pch.h">
       <Filter>Public</Filter>
     </ClInclude>
   </ItemGroup>
