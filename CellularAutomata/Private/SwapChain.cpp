@@ -4,7 +4,7 @@
 SwapChain::SwapChain(Application* app) {
 	m_device = app->GetDevice();
 
-	SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(app->GetPhysicalDevice());
+	SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(app->GetPhysicalDevice(), app->GetSurface());
 	VkSurfaceFormatKHR surfaceFormat = SelectSwapSurfaceFormat(swapChainSupport.formats);
 	VkPresentModeKHR presentMode = SelectSwapPresentMode(swapChainSupport.presentModes);
 	VkExtent2D extent = SelectSwapExtent(app->GetWindow(), swapChainSupport.capabilities);
@@ -25,7 +25,7 @@ SwapChain::SwapChain(Application* app) {
 	createInfo.imageArrayLayers = 1;
 	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 	
-	Application::QueueFamilyIndices indices = Application::FindQueueFamilies(app->GetPhysicalDevice());
+	Application::QueueFamilyIndices indices = app->FindQueueFamilies(app->GetPhysicalDevice());
 	if (indices.graphics != indices.present) {
 		uint32_t queueFamilyIndices[] = { indices.graphics, indices.present };
 		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
@@ -50,28 +50,28 @@ SwapChain::~SwapChain() {
 	vkDestroySwapchainKHR(m_device, m_swapChain, nullptr);
 }
 
-SwapChain::SwapChainSupportDetails SwapChain::QuerySwapChainSupport(VkPhysicalDevice device) {
+SwapChain::SwapChainSupportDetails SwapChain::QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface) {
 	SwapChainSupportDetails details;
-	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.capabilities);
+	vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, &details.capabilities);
 
 	uint32_t formatCount;
-	vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, nullptr);
+	vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, nullptr);
 	if (formatCount != 0) {
 		details.formats.resize(formatCount);
-		vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, details.formats.data());
+		vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, &formatCount, details.formats.data());
 	}
 
 	uint32_t presentModeCount;
-	vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, nullptr);
+	vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, nullptr);
 	if (presentModeCount != 0) {
 		details.presentModes.resize(presentModeCount);
-		vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, details.presentModes.data());
+		vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, &presentModeCount, details.presentModes.data());
 	}
 
 	return details;
 }
-bool SwapChain::DeviceSuitable(VkPhysicalDevice device) {
-	SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
+bool SwapChain::DeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface) {
+	SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device, surface);
 	return !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
 }
 

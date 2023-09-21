@@ -7,7 +7,7 @@
 Texture2D<uint64_t> tex_In;
 RWTexture2D<uint64_t> tex_Out;
 
-groupshared uint64 gs_Cache[GROUP_WIDTH][GROUP_HEIGHT];
+groupshared uint64_t gs_Cache[GROUP_WIDTH][GROUP_HEIGHT];
 
 struct Input {
 	// TODO
@@ -18,7 +18,7 @@ cbuffer ConstantBuffer {
 }
 
 inline uint GetCell(uint x, uint y) {
-	uint64 v = gs_Cache[x >> 4][y >> 4];
+	uint64_t v = gs_Cache[x >> 4][y >> 4];
 	uint bitOff = (x & 15) + ((y & 15) << 4);
 	return v & (1 << bitOff);
 }

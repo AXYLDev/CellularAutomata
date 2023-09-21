@@ -35,6 +35,7 @@ void Application::InitVulkan() {
 	CreateSurface();
 	SelectPhysicalDevice();
 	InitLogicalDevice();
+	m_swapChain = new SwapChain(this);
 }
 void Application::CreateInstance() {
 	VkApplicationInfo appInfo = {};
@@ -135,7 +136,8 @@ void Application::SelectPhysicalDevice() {
 	std::vector<VkPhysicalDevice> devices(deviceCount);
 	vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices.data());
 	// Prefer discrete GPU with highest score
-	uint32_t maxScore = 0, bool discreteFound = false;
+	uint32_t maxScore = 0;
+	bool discreteFound = false;
 	for (const auto& device : devices) {
 		VkPhysicalDeviceProperties deviceProperties;
 		vkGetPhysicalDeviceProperties(device, &deviceProperties);
@@ -159,7 +161,7 @@ void Application::SelectPhysicalDevice() {
 			if (!requiredExtensions.empty()) continue;
 			
 			// Check swap chain support
-			if (!SwapChain::DeviceSuitable(device)) continue;
+			if (!SwapChain::DeviceSuitable(device, m_surface)) continue;
 		}
 
 		// Find score
@@ -241,6 +243,7 @@ void Application::Run() {
 
 /* ---- Cleanup ---- */
 Application::~Application() {
+	delete m_swapChain;
 	vkDestroyDevice(m_device, nullptr);
 	if (s_EnableValidationLayers) {
 		VkDestroyDebugUtilsMessengerEXT(m_instance, m_debugMessenger, nullptr);

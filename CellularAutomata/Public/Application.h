@@ -81,4 +81,5 @@ private:
 	VkDevice m_device;
 	VkQueue m_graphicsQueue;
 	VkQueue m_presentQueue;
+	SwapChain* m_swapChain;
 };

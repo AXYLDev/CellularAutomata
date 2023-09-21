@@ -11,10 +11,11 @@ public:
 		std::vector<VkPresentModeKHR> presentModes;
 	};
 
-	static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
-	static bool DeviceSuitable(VkPhysicalDevice device);
+	static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
+	static bool DeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface);
 
 public:
+	SwapChain() = delete;
 	SwapChain(Application* app);
 	~SwapChain();
 
