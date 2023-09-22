@@ -49,7 +49,7 @@ SwapChain::SwapChain(Application* app) {
 	// Get image handles
 	vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, nullptr);
 	m_images.resize(imageCount);
-	vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, swapChainImages.data());
+	vkGetSwapchainImagesKHR(m_device, m_swapChain, &imageCount, m_images.data());
 
 	m_format = surfaceFormat.format;
 	m_extent = extent;
