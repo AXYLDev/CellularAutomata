@@ -27,7 +27,13 @@ protected:
 	VkExtent2D SelectSwapExtent(GLFWwindow* window, const VkSurfaceCapabilitiesKHR& capabilities);
 
 private:
+	// Handles
 	VkSwapchainKHR m_swapChain;
+	std::vector<VkImage> m_images;
+	std::vector<VkImageView> m_imageViews;
 	VkDevice m_device;
+	// Metadata
+	VkFormat m_format;
+	VkExtent2D m_extent;
 
 };
