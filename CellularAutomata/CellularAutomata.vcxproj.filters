@@ -27,6 +27,12 @@
     <ClCompile Include="Private\SwapChain.cpp">
       <Filter>Private</Filter>
     </ClCompile>
+    <ClCompile Include="Public\GraphicsPipeline.h">
+      <Filter>Public</Filter>
+    </ClCompile>
+    <ClCompile Include="Private\GraphicsPipeline.cpp">
+      <Filter>Private</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Public\Application.h">

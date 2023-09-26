@@ -1,5 +1,6 @@
 #pragma once
 #include "SwapChain.h"
+#include "GraphicsPipeline.h"
 
 class Application {
 public:
