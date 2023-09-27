@@ -16,5 +16,6 @@ protected:
 
 private:
 	Application* m_app;
+	VkPipelineLayout m_pipelineLayout;
 
 };
