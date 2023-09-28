@@ -48,11 +48,12 @@ public:
 	~Application();
 	void Run();
 
-	VkPhysicalDevice GetPhysicalDevice() { return m_physicalDevice; }
-	VkDevice GetDevice() { return m_device; }
-	GLFWwindow* GetWindow() { return m_window; }
-	VkSurfaceKHR GetSurface() { return m_surface; }
+	VkPhysicalDevice GetPhysicalDevice() const { return m_physicalDevice; }
+	VkDevice GetDevice() const { return m_device; }
+	GLFWwindow* GetWindow() const { return m_window; }
+	VkSurfaceKHR GetSurface() const { return m_surface; }
 	QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+	SwapChain* GetSwapChain() const { return m_swapChain; }
 
 
 private:

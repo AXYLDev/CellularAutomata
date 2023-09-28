@@ -20,6 +20,7 @@ public:
 	~SwapChain();
 
 	VkSwapchainKHR Get() { return m_swapChain; }
+	VkFormat GetFormat() { return m_format; }
 
 protected:
 	VkSurfaceFormatKHR SelectSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);

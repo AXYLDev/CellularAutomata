@@ -13,6 +13,7 @@ public:
 
 protected:
 	VkShaderModule CreateShaderModule(const std::string& filePath);
+	void CreateRenderPass();
 
 private:
 	Application* m_app;
