@@ -105,14 +105,40 @@ GraphicsPipeline::GraphicsPipeline(Application* app) : m_app(app) {
         throw;
     }
 
-    // TODO
+    CreateRenderPass();
+
+    // Create pipeline
+    VkGraphicsPipelineCreateInfo pipelineInfo{};
+    pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineInfo.stageCount = 2;
+    pipelineInfo.pStages = shaderStages;
+    pipelineInfo.pVertexInputState = &vertexInputInfo;
+    pipelineInfo.pInputAssemblyState = &inputAssembly;
+    pipelineInfo.pViewportState = &viewportState;
+    pipelineInfo.pRasterizationState = &rasterizer;
+    pipelineInfo.pMultisampleState = &multisampling;
+    pipelineInfo.pDepthStencilState = nullptr;
+    pipelineInfo.pColorBlendState = &colorBlending;
+    pipelineInfo.pDynamicState = &dynamicState;
+    pipelineInfo.layout = m_pipelineLayout;
+    pipelineInfo.renderPass = m_renderPass;
+    pipelineInfo.subpass = 0;
+    pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+    pipelineInfo.basePipelineIndex = -1;
+    
+    if (vkCreateGraphicsPipelines(m_app->GetDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_pipeline) != VK_SUCCESS) {
+        std::cout << "Failed to create graphics pipeline" << std::endl;
+        throw;
+    }
 
     vkDestroyShaderModule(m_app->GetDevice(), vertexModule, nullptr);
     vkDestroyShaderModule(m_app->GetDevice(), fragModule, nullptr);
 }
 
 GraphicsPipeline::~GraphicsPipeline() {
+    vkDestroyPipeline(m_app->GetDevice(), m_pipeline, nullptr);
     vkDestroyPipelineLayout(m_app->GetDevice(), m_pipelineLayout, nullptr);
+    vkDestroyRenderPass(m_app->GetDevice(), m_renderPass, nullptr);
 }
 
 VkShaderModule GraphicsPipeline::CreateShaderModule(const std::string& filePath) {
@@ -145,5 +171,20 @@ void GraphicsPipeline::CreateRenderPass() {
     VkAttachmentReference colorAttachmentRef{};
     colorAttachmentRef.attachment = 0;
     colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    VkSubpassDescription subpass{};
+    subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+    subpass.colorAttachmentCount = 1;
+    subpass.pColorAttachments = &colorAttachmentRef;
 
+    VkRenderPassCreateInfo renderPassInfo{};
+    renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+    renderPassInfo.attachmentCount = 1;
+    renderPassInfo.pAttachments = &colorAttachment;
+    renderPassInfo.subpassCount = 1;
+    renderPassInfo.pSubpasses = &subpass;
+
+    if (vkCreateRenderPass(m_app->GetDevice(), &renderPassInfo, nullptr, &m_renderPass) != VK_SUCCESS) {
+        std::cout << "Failed to create render pass" << std::endl;
+        throw;
+    }
 }

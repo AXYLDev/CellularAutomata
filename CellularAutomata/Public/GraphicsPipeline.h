@@ -18,5 +18,6 @@ protected:
 private:
 	Application* m_app;
 	VkPipelineLayout m_pipelineLayout;
-
+	VkRenderPass m_renderPass;
+	VkPipeline m_pipeline;
 };

@@ -84,4 +84,5 @@ private:
 	VkQueue m_graphicsQueue;
 	VkQueue m_presentQueue;
 	SwapChain* m_swapChain;
+	GraphicsPipeline* m_graphicsPipeline;
 };

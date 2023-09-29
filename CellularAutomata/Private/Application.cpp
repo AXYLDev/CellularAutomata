@@ -36,6 +36,7 @@ void Application::InitVulkan() {
 	SelectPhysicalDevice();
 	InitLogicalDevice();
 	m_swapChain = new SwapChain(this);
+	m_graphicsPipeline = new GraphicsPipeline(this);
 }
 void Application::CreateInstance() {
 	VkApplicationInfo appInfo = {};
@@ -243,6 +244,7 @@ void Application::Run() {
 
 /* ---- Cleanup ---- */
 Application::~Application() {
+	delete m_graphicsPipeline;
 	delete m_swapChain;
 	vkDestroyDevice(m_device, nullptr);
 	if (s_EnableValidationLayers) {
